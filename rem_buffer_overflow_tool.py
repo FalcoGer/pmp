@@ -341,7 +341,7 @@ def parse_args():
 						, help='Predetermined offset for EIP. -1 to find it.'
 						, default = -1, type=int)
 	# predeterminded badchars
-	parser.add_argument('--bad-bytes', dest='badbytes', help='Known bad bytes. Ex. "\x00\x0A"', default='\\x00')
+	parser.add_argument('--bad-bytes', dest='badbytes', help='Known bad bytes. Ex. "\\x00\\x0A"', default='\\x00')
 	# msfvenom
 	parser.add_argument('--venom-path', dest='msfvenom', help='Path to msfvenom', default='/usr/bin/msfvenom')
 	parser.add_argument('--payload-name', dest='payload_name', help='metasploit payload you want to use. If not set program will ask you.')
