@@ -77,7 +77,7 @@ def check_badbytes(target, badbytes, eip_offset, args):
 		# use bytearray for easy indexing
 		checkbytes = bytearray(0x100 - len(badbytes))
 		idx = 0
-		for i in range(0xFF):
+		for i in range(0x100):
 			if i in badbytes:
 				continue
 			checkbytes[idx] = i
