@@ -95,10 +95,7 @@ def check_badbytes(target, badbytes, eip_offset, args):
 				print('Target didn\'t crash.')
 				exit(-1)
 
-			eip_hex_le_str = ''
-			for b in args.bad_eip[::-1]:
-				eip_hex_le_str += hex(b)[2::]
-
+			eip_hex_le_str = bytes_to_pystring(args.bad_eip[::-1]).replace('\\x','')
 			print(f'Target crashed. Make sure target EIP = {eip_hex_le_str}')
 			print('!mona compare -f bytearray.bin -a <ESP>')
 			h = input('Enter bad byte hex. (ex. 0A, empty if unmodified)\n> ')
