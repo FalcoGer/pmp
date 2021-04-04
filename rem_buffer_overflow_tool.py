@@ -474,7 +474,8 @@ def parse_args():
 	args.postfix = string_to_bytes(args.postfix)
 	args.bad_eip = string_to_bytes(args.bad_eip)
 	args.badbytes = string_to_bytes(args.badbytes)
-	args.target_eip = string_to_bytes(args.target_eip)
+	if args.target_eip:
+		args.target_eip = string_to_bytes(args.target_eip)
 
 	# fix list
 	if args.payload_options:
