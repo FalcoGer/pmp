@@ -47,7 +47,7 @@ def main():
 	buffer = buffer + padding + args.postfix
 	
 	# ask user to start local handler
-	
+	print('Start Local handler for exploit.')
 	
 	# pwn target
 	
@@ -467,7 +467,7 @@ def parse_args():
 	
 	# fix types
 	args.banner = (args.banner == 'True')
-	args.badbytes_known = (badbytes_known == 'True')
+	args.badbytes_known = (args.badbytes_known == 'True')
 	
 	# fix bytes arguments for prefix, postfix, target_eip, bad_eip, badbytes
 	args.prefix = string_to_bytes(args.prefix)
