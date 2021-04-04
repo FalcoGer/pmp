@@ -101,13 +101,15 @@ def check_badbytes(target, badbytes, eip_offset, args):
 			print(f'Target crashed. Make sure target EIP = {eip_hex_le_str}')
 			print('!mona compare -f bytearray.bin -a <ESP>')
 			h = input('Enter bad byte hex. (ex. 0A, empty if unmodified)\n> ')
-			h = int(h, 16)
-			h = hex(h)[2::]
-			if len(h) == 1:
-				h = '0' + h
-			h = bytes.fromhex(h)
-			badbytes += h
-
+			if not h:
+				keepLooking = False
+			else:
+				h = int(h, 16)
+				h = hex(h)[2::]
+				if len(h) == 1:
+					h = '0' + h
+				h = bytes.fromhex(h)
+				badbytes += h
 		except:
 			print(sys.exc_info())
 			exit(-1)
