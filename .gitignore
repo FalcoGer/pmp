@@ -127,3 +127,20 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# backups
+*.orig
+*.bkp
+
+# temporary files
+*.tmp
+*.temp
+*.swp
+*.swap
+
+# payloads, binaries, hex files
+*.hex
+*.bin
+*.payload
+*.buf
+*.buffer
