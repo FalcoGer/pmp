@@ -108,7 +108,7 @@ def check_badbytes(target, badbytes, eip_offset, args):
 					h = '0' + h
 				h = bytes.fromhex(h)
 				badbytes += h
-		except:
+		except Exception:
 			print(sys.exc_info())
 			exit(-1)
 	return badbytes
@@ -343,7 +343,7 @@ def crashcheck(target, args):
 		print('Disconnecting.')
 		s.close()
 		return False
-	except:
+	except Exception:
 		print('Error. Assuming target down.')
 		print(sys.exc_info())
 		return True
@@ -376,7 +376,7 @@ def findPattern(length, eip_hexstr, args):
 		print(cmd)
 		offset = os.popen(cmd).read()
 		offset = int(offset)
-	except:
+	except Exception:
 		print(sys.exc_info())
 	
 	if offset < 0:
@@ -549,4 +549,5 @@ def string_to_bytes(string):
 		i += 1
 	return result
 
-main()
+if __name__ == '__main__':
+	main()
