@@ -23,11 +23,19 @@ openvas                     - open vulnerability scanner, browser based
 arachni                     - browser based web scanner
 wfuzz                       - fuzzing tool
 shodan                      - web api based lookup with various informations
-theHarvester.py             - passive lookup on domains
+theHarvester.py             - passive osint, don't forget to specify -b <source>
+recon-ng                    - passive osint
+osrframework                - passive osint, allows regex
+    osrf mailfy -n 'name'   - search for mails on all mail providers with name in them
+    osrf domainfy --whois -n 'name'
+                            - get whois information for all domains with name
+    osrf searchfy -q <query>
+                            - search web for this regex
+    osrf.sh usufy -n <name> - search web for this username
+sublist3r                   - osint (passive + active) subdomain finder
+dnsenum                     - enumerates dns records for domain. (manual dig -t ns <domain> -> dig axfr @<ns> <domain>)
+dnsmap                      - brute force dns server for subdomains
 crackmapexec / cme          - multi purpose tool for enumeration and exploitation
-owtf                        - OWASP offensive web testing framework
-                            python -m owtf
-                            then open webinterface on localhost:8009
 
 ----------------------------------------
 access
@@ -191,3 +199,11 @@ print(r.text)
 
 windows passwords in
 C:/windows/system32/config/sam
+
+
+
+
+docker
+docker ps                               - list containers
+docker exec -it <name> <cmd>            - execute command inside container (use /bin/bash for shell)
+-p [ip:]:<hostport>:<ctnrport>[/prot]   - publish container ports to host ports
