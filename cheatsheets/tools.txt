@@ -23,7 +23,11 @@ openvas                     - open vulnerability scanner, browser based
 arachni                     - browser based web scanner
 wfuzz                       - fuzzing tool
 shodan                      - web api based lookup with various informations
+theHarvester.py             - passive lookup on domains
 crackmapexec / cme          - multi purpose tool for enumeration and exploitation
+owtf                        - OWASP offensive web testing framework
+                            python -m owtf
+                            then open webinterface on localhost:8009
 
 ----------------------------------------
 access
@@ -67,18 +71,18 @@ bully - wps brute force
 ----------------------------------------
 tools
 
-cyberchef - web based data pipeline (crypto, encoding, etc)
-msfconsole - metasploit framework, fuck yeah, in meterpreter use bash -i to get shell output in console
-hexdump - hexdump terminal, -C flag for pretty output
-cutter - frontend for radare2 decompiler/disassembler
-ida_free - ida disassembler
-okteta - hex editor
-ipython - python interpreter with some advanced features
-wingide - good python ide
-sublime text - text editor, multi ide
-vim - vim
-searchsploit - tool to search local copy of exploit db (https://www.exploit-db.com)
-crypttool 1/2/j - crypto analytics
+cyberchef               - web based data pipeline (crypto, encoding, etc)
+msfconsole              - metasploit framework, fuck yeah, in meterpreter use bash -i to get shell output in console
+hexdump                 - hexdump terminal, -C flag for pretty output
+cutter                  - frontend for radare2 decompiler/disassembler
+ida_free                - ida disassembler
+okteta                  - hex editor
+ipython                 - python interpreter with some advanced features
+wingide                 - good python ide
+sublime text            - text editor, multi ide
+vim                     - vim
+searchsploit            - tool to search local copy of exploit db (https://www.exploit-db.com)
+crypttool 1/2/j         - crypto analytics
 
 reverse shells: https://www.hackingtutorials.org/networking/hacking-netcat-part-2-bind-reverse-shells/
 bash reverse tcp
@@ -93,7 +97,7 @@ bash reverse tcp
 
 man, whatis, whereis, type (command) - information about command
 python -m http.server <port>
-jq - pretty print json
+jq                      - pretty print json
 /opt/metasploit-framework/embedded/framework/tools/exploit/pattern_create.rb -l 600
 /opt/metasploit-framework/embedded/framework/tools/exploit/pattern_offset.rb -l 600 -q <rev EIP>
 immunity debugger plugin mona - https://github.com/corelan/mona
