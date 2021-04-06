@@ -8,6 +8,16 @@ nmap                        - port scan, use --script=vuln,safe to automatically
                                 scripts example:
                                     --script "(default or safe or vuln) and not http-* and not intrusive"
 
+                                scan types:
+                                -sT         - TCP Connect (3-Way handshake + RST)
+                                -sS*        - TCP Syn Stealth / TCP Half-Open (SYN - SYNACK - RST)
+                                -sU*        - UDP
+                                -sX*        - XMAS (URG,FIN,PSH) - against posix targets only
+                                -sF*        - FIN - against posix targets only
+                                -sN*        - NULL - against posix targets only
+                                -sA*        - ACK Probe, test if port is filtered (expect RST on every port, service or no service)
+                                            * - Requires root
+
 ncat                        - Concatenate and redirect sockets
 nping                       - Network packet generation tool / ping utility
 ndiff                       - utility to compare nmap scan results (hosts coming up or down, ports opening and closing)
