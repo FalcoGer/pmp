@@ -81,6 +81,7 @@ beef                        - browser exploitation framework
 dotdotpwn                   - see "PayloadsAllTheThing/Directory Traversal"
 strings                     - find out what programs might call, possibly without absolute path (allows to add own path and execute arbitary code)
 chisel                      - pivoting via http or socks5 proxy
+proxychains                 - proxying, prepend to any command to use through a proxy
 mimikatz                    - windows credentials stealer, including from memory, pass-the-hash, golden tickets
                             https://github.com/gentilkiwi/mimikatz/wiki
 
@@ -120,6 +121,9 @@ sublime text            - text editor, multi ide
 vim                     - vim
 cherrytree              - Hirachical note taking application (richtext), saves to sqlite or xml
 searchsploit            - tool to search local copy of exploit db (https://www.exploit-db.com)
+                            use -x flag to show file results
+                            use -m flag to save file locally
+dos2unix                - use this to convert dos line endings from searchsploit into unix line endings...
 crypttool 1/2/j         - crypto analytics
 
 reverse shells: https://www.hackingtutorials.org/networking/hacking-netcat-part-2-bind-reverse-shells/
@@ -176,6 +180,8 @@ wildcard injection - bash (tar cf archive.tar *)
 https://www.hackingarticles.in/exploiting-wildcard-for-privilege-escalation/
 
 shodan - web api based database on open ports and vulnerabilities
+
+Static binaries                 - https://github.com/ernw/static-toolbox/releases/download/1.04/nmap-7.80SVN-x86_64-a36a34aa6-portable.zip
 
 
 ----------------------------------------
