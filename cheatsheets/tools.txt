@@ -67,6 +67,7 @@ sqlmap                          - sql injection checking
                                 	sqlmap --dump -r requestfile
                                 	sqlmap --dump-all -r requestfile
 jsql                            - java sql injection tool
+backdoor factory                - patch binaries (PE and ELF) with msf payloads
 
 ----------------------------------------
 post
@@ -84,6 +85,23 @@ chisel                      - pivoting via http or socks5 proxy
 proxychains                 - proxying, prepend to any command to use through a proxy
 mimikatz                    - windows credentials stealer, including from memory, pass-the-hash, golden tickets
                             https://github.com/gentilkiwi/mimikatz/wiki
+evil-winrm                  - access windows remote management server (5985) (sudo gem install evil-winrm)
+                            requires user on the target with group "Remote Management Users" (use windows net command to make users and add them to groups (Administrators, Remote Desktop Users, Remote Management Users))
+                            can use password (-p) or pass-the-hash (-H) for authentication
+freerdp                    - free rdp tool. requires user on target with Remote Desktop Users group
+                            Useful flags
+                            /dynamic-resolution                 - Allows dynamically changing screen size
+                            /size:WIDTHxHEIGHT                  - set screen size static for servers that don't support dynamic
+                            +clipboard                          - enable clipboard support
+                            /drive:LOCAL_DIRECTORY,SHARE_NAME   - creates a share on the target to our local directory so we can easily transfer files
+empire c2                   - Empire command and control
+GitTools                    - https://github.com/internetwache/GitTools
+                            gitdumper.sh                        - download an exposed .git directory from a website
+                            extractor.sh                        - take a local .git directory and recreate the repository in a readable format
+                            gitfinder.py                        - search the internet for exposed .git directories
+impacket/secretsdump.py     - dump sam hashes
+impacket/smbserver.py       - set up SMB server for file up/download
+                            smbserver.py share <path/to/share> -smb2support -username <user> -password <pass>
 
 ----------------------------------------
 wifi/low level networking
@@ -135,34 +153,37 @@ bash reverse tcp
 
 	on attacker
 	pwncat.sh -l -p $PORT
-		pwncat> enum -s -e  - enumerates target (run on local)
+		pwncat> enum -s -e              - enumerates target (run on local mode)
 
-man, whatis, whereis, type (command) - information about command
+man, whatis, whereis, type (command)    - information about command
 python -m http.server <port>
-jq                      - pretty print json
+jq                                      - pretty print json
 /opt/metasploit-framework/embedded/framework/tools/exploit/pattern_create.rb -l 600
 /opt/metasploit-framework/embedded/framework/tools/exploit/pattern_offset.rb -l 600 -q <rev EIP>
-immunity debugger plugin mona - https://github.com/corelan/mona
-	paste to C:\Program Files\Immunity Inc\Immunity Debugger\PyCommands
-	!mona config -set workingfolder c:\mona\%p
+immunity debugger plugin mona           - https://github.com/corelan/mona
+                                        	paste to C:\Program Files\Immunity Inc\Immunity Debugger\PyCommands
+                                        	!mona config -set workingfolder c:\mona\%p
 
-	find distance to unique pattern (msf pattern_create) in EIP
-	!mona findmsp -distance 600
+                                        	find distance to unique pattern (msf pattern_create) in EIP
+                                        	!mona findmsp -distance 600
 
-	find jump point with the address not containing any of the bad chars indicated
-	!mona jmp -r esp -cpb "\x00\x0a\x0d"
-	!mona find -s 'jmp esp' -type instr -cm aslr=false,rebase=false,nx=false -cpb "\x00\x0a\x0d"
+                                        	find jump point with the address not containing any of the bad chars indicated
+                                        	!mona jmp -r esp -cpb "\x00\x0a\x0d"
+                                        	!mona find -s 'jmp esp' -type instr -cm aslr=false,rebase=false,nx=false -cpb "\x00\x0a\x0d"
 
-	create byte array with badchars indicated and compare with address (cstring-array)
-	!mona bytearray 256 -b "\x00\xff"
-	!mona compare -f C:/mona/%p/bytearray.bin -a <address>
+                                        	create byte array with badchars indicated and compare with address (cstring-array)
+                                        	!mona bytearray 256 -b "\x00\xff"
+                                        	!mona compare -f C:/mona/%p/bytearray.bin -a <address>
 
-iptraf - watch network trafic
-iftop  - watch network trafic
-nethogs - watch network trafic, also displays process
-subnetcalc - subnet calculator
-grab -A<N> - grab N lines after initial find
-cmatrix - because why the fuck not
+iptraf                                  - watch network trafic
+iftop                                   - watch network trafic
+nethogs                                 - watch network trafic, also displays process
+subnetcalc                              - subnet calculator
+grab -A<N>                              - grab N lines after initial find
+exiftool                                - tool for reading and manipulating image file metadata
+https://www.gaijin.at/en/tools/php-obfuscator
+                                        - obfuscate php code for av evasion. also makes it smaller and one line
+cmatrix                                 - because why the fuck not
 
 ----------------------------------------
 references
