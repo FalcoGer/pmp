@@ -24,7 +24,7 @@ ndiff                       - utility to compare nmap scan results (hosts coming
 zenmap                      - gui for nmap
 
 rustscan                    - fancy nmap wrapper in rust, -b for batch size, all nmap flags, ex.
-    	                        sudo rustscan -a <host> -r1-65535 -- -O -sV --script default,vuln,safe
+                                sudo rustscan -a <host> -r1-65535 -- -O -sV --script default,vuln,safe
 
 enum4linux.pl               - enumerate users, directories, etc on remote hosts
 gobuster                    - web directory brute forcer
@@ -113,6 +113,7 @@ aircrack-ng                 - sniff wifi psk
 wifipumpkin                 - fake AP, MITM
 ettercap / ettercap-gui     - arp poisoning, mitm
 bully                       - wps brute force
+tcpflow                     - extract files from pcap
 
 ----------------------------------------
 RF
@@ -235,6 +236,7 @@ wireshark                               - read network traffic.
                                         4. delete pipe if desired
                                             rm /tmp/packet_capture
 cmatrix                                 - because why the fuck not
+foremost                                - find files embedded in other files
 
 ----------------------------------------
 references
