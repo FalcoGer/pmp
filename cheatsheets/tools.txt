@@ -82,6 +82,7 @@ linenum                     - another enumeration tool
 beef                        - browser exploitation framework
 dotdotpwn                   - see "PayloadsAllTheThing/Directory Traversal"
 strings                     - find out what programs might call, possibly without absolute path (allows to add own path and execute arbitary code)
+floss                       - flare obfuscated string solver, strings but detects obfuscated ones as well, https://github.com/mandiant/flare-floss
 chisel                      - pivoting via http or socks5 proxy
 proxychains                 - proxying, prepend to any command to use through a proxy
 mimikatz                    - windows credentials stealer, including from memory, pass-the-hash, golden tickets. In MSF meterpreter it is run with "load kiwi"
