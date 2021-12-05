@@ -69,6 +69,7 @@ sqlmap                          - sql injection checking
 jsql                            - java sql injection tool
 backdoor factory                - patch binaries (PE and ELF) with msf payloads
 afl++                           - american fuzzy lop - fuzzer that fuzzes binaries stdin or parses file as argument.
+bloodhound                      - active directory graph visualizer to identify attack vectors
 
 ----------------------------------------
 post
