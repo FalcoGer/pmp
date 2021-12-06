@@ -48,6 +48,7 @@ dnsenum                     - enumerates dns records for domain. (manual dig -t 
 dnsmap                      - brute force dns server for subdomains
 crackmapexec / cme          - multi purpose tool for enumeration and exploitation
 
+
 ----------------------------------------
 access
 
@@ -70,8 +71,16 @@ jsql                            - java sql injection tool
 backdoor factory                - patch binaries (PE and ELF) with msf payloads
 afl++                           - american fuzzy lop - fuzzer that fuzzes binaries stdin or parses file as argument.
 bloodhound                      - active directory graph visualizer to identify attack vectors
+                                    upload sharphound.ps1 and .exe from BloodHound/resources/app/Collectors
 neo4j                           - database for bloodhound - sudo -u neo4j neo4j console
 kerbrute                        - kerberos brute forcer
+smbclient                       - map smb shares
+                                    smbclient -L 10.10.7.72 --user=username
+                                        -> list services for username
+                                    smbclient --ip-address=a.b.c.d --user=username 'domainname\\service' password4username
+                                        -> connect to service
+smbmap                          - map smb
+
 
 ----------------------------------------
 post
@@ -89,6 +98,12 @@ floss                       - flare obfuscated string solver, strings but detect
 chisel                      - pivoting via http or socks5 proxy
 proxychains                 - proxying, prepend to any command to use through a proxy
 mimikatz                    - windows credentials stealer, including from memory, pass-the-hash, golden tickets. In MSF meterpreter it is run with "load kiwi"
+                                :: to list modules
+                                module::command to run command
+                                command arguments like so
+                                lsadump::lsa /patch
+                                or /argument:value
+
                             https://github.com/gentilkiwi/mimikatz/wiki
 evil-winrm                  - access windows remote management server (5985) (sudo gem install evil-winrm)
                             requires user on the target with group "Remote Management Users" (use windows net command to make users and add them to groups (Administrators, Remote Desktop Users, Remote Management Users))
@@ -99,6 +114,7 @@ freerdp                    - free rdp tool. requires user on target with Remote 
                             /size:WIDTHxHEIGHT                  - set screen size static for servers that don't support dynamic
                             +clipboard                          - enable clipboard support
                             /drive:LOCAL_DIRECTORY,SHARE_NAME   - creates a share on the target to our local directory so we can easily transfer files
+remmina                     - rdp/vnc tool
 empire c2                   - Empire command and control
 GitTools                    - https://github.com/internetwache/GitTools
                             gitdumper.sh                        - download an exposed .git directory from a website
