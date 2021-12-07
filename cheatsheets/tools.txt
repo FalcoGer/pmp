@@ -87,6 +87,9 @@ post
 
 john / johnny               - password cracking
 hashcat                     - password cracking
+                                hashcat wordlist [-r rule] --stdout | ... | hashcat -a 0 -m hashtype <hashfile|hashstring>
+hob0rules                   - rules for hashcat - https://github.com/praetorian-inc/Hob0Rules.git
+hash-id.py                  - identify hashes - https://github.com/blackploit/hash-identifier.git
 privilege-escalation-awesome-scripts-suite
                             - linpeas.sh / winpeas.exe/bat, copy to target and execute as user to enumerate interesting privesc oportunities
                             git@github.com:carlospolop/privilege-escalation-awesome-scripts-suite.git
