@@ -80,6 +80,7 @@ smbclient                       - map smb shares
                                     smbclient --ip-address=a.b.c.d --user=username 'domainname\\service' password4username
                                         -> connect to service
 smbmap                          - map smb
+cupp                            - generate wordlists from a profiled user using information such as birthday, name of pet, etc
 
 
 ----------------------------------------
@@ -87,12 +88,12 @@ post
 
 john / johnny               - password cracking
 hashcat                     - password cracking
-                                hashcat wordlist [-r rule] --stdout | ... | hashcat -a 0 -m hashtype <hashfile|hashstring>
+                                hashcat wordlist [-r rule] --stdout | ... | hashcat -a 0 -m hashtype <hashfile|hashstring>i
 hob0rules                   - rules for hashcat - https://github.com/praetorian-inc/Hob0Rules.git
 hash-id.py                  - identify hashes - https://github.com/blackploit/hash-identifier.git
 privilege-escalation-awesome-scripts-suite
                             - linpeas.sh / winpeas.exe/bat, copy to target and execute as user to enumerate interesting privesc oportunities
-                            git@github.com:carlospolop/privilege-escalation-awesome-scripts-suite.git
+                            https://github.com/carlospolop/PEASS-ng.git
 linenum                     - another enumeration tool
 beef                        - browser exploitation framework
 dotdotpwn                   - see "PayloadsAllTheThing/Directory Traversal"
@@ -181,6 +182,7 @@ searchsploit            - tool to search local copy of exploit db (https://www.e
                             use -m flag to save file locally
 dos2unix                - use this to convert dos line endings from searchsploit into unix line endings...
 crypttool 1/2/j         - crypto analytics
+steghide                - stegonography tool
 
 reverse shells: https://www.hackingtutorials.org/networking/hacking-netcat-part-2-bind-reverse-shells/
 bash reverse tcp
@@ -222,6 +224,7 @@ exiftool                                - tool for reading and manipulating imag
 https://www.gaijin.at/en/tools/php-obfuscator
                                         - obfuscate php code for av evasion. also makes it smaller and one line
 ciphey                                  - decoder/cracker/analyzer for unknown ciphertext
+decodify                                - decoder - https://github.com/s0md3v/Decodify.git
 curl                                    - make web requests
                                             - default get
                                             - -X <VERB> to use the specified verb, such as POST
