@@ -28,6 +28,7 @@ rustscan                    - fancy nmap wrapper in rust, -b for batch size, all
 
 enum4linux.pl               - enumerate users, directories, etc on remote hosts
 gobuster                    - web directory brute forcer
+dirbuster                   - dirb - web directory brute forcer
 nikto                       - web directory brute forcer
 openvas                     - open vulnerability scanner, browser based
 arachni                     - browser based web scanner
