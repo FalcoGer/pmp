@@ -69,6 +69,7 @@ sqlmap                          - sql injection checking
                                 	sqlmap --dump -r requestfile
                                 	sqlmap --dump-all -r requestfile
 jsql                            - java sql injection tool
+nosqlmap                        - sqlmap for nosql databases
 backdoor factory                - patch binaries (PE and ELF) with msf payloads
 afl++                           - american fuzzy lop - fuzzer that fuzzes binaries stdin or parses file as argument.
 bloodhound                      - active directory graph visualizer to identify attack vectors
@@ -96,6 +97,9 @@ privilege-escalation-awesome-scripts-suite
                             - linpeas.sh / winpeas.exe/bat, copy to target and execute as user to enumerate interesting privesc oportunities
                             https://github.com/carlospolop/PEASS-ng.git
 linenum                     - another enumeration tool
+les                         - linux exploit suggester
+linux smart enumeration     - another enumeration tool
+linux priv checker          - and yet another enumeration tool
 beef                        - browser exploitation framework
 dotdotpwn                   - see "PayloadsAllTheThing/Directory Traversal"
 strings                     - find out what programs might call, possibly without absolute path (allows to add own path and execute arbitary code)
