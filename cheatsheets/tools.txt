@@ -62,6 +62,7 @@ nc                              - netcat
 socat                           - multipurpose relay for bidirectional data transfer
 pwncat                          - netcat on steroids
 smbclient //<ip>/<sharename>    - access samba server (windows file share), get from smb enum (nmap, enum4linux, etc)
+                                    smbclient -L <ip> to enumerate shares
 SecLists                        - various lists (repositories)
 sqlmap                          - sql injection checking
                                 	burp suite intercept request
@@ -100,6 +101,8 @@ linenum                     - another enumeration tool
 les                         - linux exploit suggester
 linux smart enumeration     - another enumeration tool
 linux priv checker          - and yet another enumeration tool
+juicy-potato                - windows privesc tool exploiting SeImpersonate privilige (whoami /priv) of service accounts to automatically escalte to system
+cdk                         - container penetration testing kit
 beef                        - browser exploitation framework
 dotdotpwn                   - see "PayloadsAllTheThing/Directory Traversal"
 strings                     - find out what programs might call, possibly without absolute path (allows to add own path and execute arbitary code)
@@ -188,6 +191,8 @@ searchsploit            - tool to search local copy of exploit db (https://www.e
 dos2unix                - use this to convert dos line endings from searchsploit into unix line endings...
 crypttool 1/2/j         - crypto analytics
 steghide                - stegonography tool
+binwalk                 - find files embedded in other files
+oledump.py              - find files embedded in OLE files (.doc, .xls, .ppt, and such)
 
 reverse shells: https://www.hackingtutorials.org/networking/hacking-netcat-part-2-bind-reverse-shells/
 bash reverse tcp
@@ -230,6 +235,7 @@ https://www.gaijin.at/en/tools/php-obfuscator
                                         - obfuscate php code for av evasion. also makes it smaller and one line
 ciphey                                  - decoder/cracker/analyzer for unknown ciphertext
 decodify                                - decoder - https://github.com/s0md3v/Decodify.git
+cifer                                   - cryptoanalysis tool
 curl                                    - make web requests
                                             - default get
                                             - -X <VERB> to use the specified verb, such as POST
