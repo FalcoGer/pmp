@@ -194,7 +194,10 @@ meterpreter             - payload
                             - pivoting with autoroute
                             - starting a proxy to use with proxychains
 hexdump                 - hexdump terminal, -C flag for pretty output
-cutter                  - frontend for radare2 decompiler/disassembler
+cutter                  - frontend for rizin decompiler/disassembler
+angr                    - python library for dynamic and static binary analysis
+                            allows finding which inputs result in specific execution paths (ex. keygen)
+                            has cutter plugin
 ida_free                - ida disassembler
 okteta                  - hex editor
 ipython                 - python interpreter with some advanced features
