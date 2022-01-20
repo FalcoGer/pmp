@@ -212,6 +212,7 @@ cve_searchsploit        - tool to look through exploitdb by CVE
 dos2unix                - use this to convert dos line endings from searchsploit into unix line endings...
 crypttool 1/2/j         - crypto analytics
 steghide                - stegonography tool
+stegseek                - crack stegonography passphrases, successor of stegcracker, https://github.com/RickdeJager/stegseek
 binwalk                 - find files embedded in other files
 oledump.py              - find files embedded in OLE files (.doc, .xls, .ppt, and such)
 
