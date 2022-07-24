@@ -28,6 +28,7 @@ rustscan                    - fancy nmap wrapper in rust, -b for batch size, all
 
 enum4linux.pl               - enumerate users, directories, etc on remote hosts
 enum4linux-ng               - enum4linux next generation. Doesn't do RID cycling by default, use with -R
+cmseek                      - CMS enumerator - https://github.com/Tuhinshubhra/CMSeeK
 gobuster                    - web directory brute forcer
 dirbuster                   - dirb - web directory brute forcer
 nikto                       - web directory brute forcer
