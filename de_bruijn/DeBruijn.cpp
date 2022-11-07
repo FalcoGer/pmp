@@ -1,6 +1,7 @@
 #include "DeBruijn.h"
 #include <sstream>
 #include <algorithm>
+#include <cmath>
 
 /// Initialize DeBruijn sequence with hex digits as alphabet
 DeBruijn::DeBruijn()
@@ -42,6 +43,11 @@ DeBruijn::DeBruijn(std::string_view alphabet)
     }
   }
   k = this->alphabet.size();
+}
+
+double DeBruijn::len(unsigned int n)
+{
+  return std::pow(k, n);
 }
 
 /// Generate De Bruijn sequence. Ref: https://en.wikipedia.org/wiki/De_Bruijn_sequence#Example_using_de_Bruijn_graph

@@ -13,6 +13,7 @@ class DeBruijn
     DeBruijn(std::string_view alphabet);
     ~DeBruijn() = default;
     std::string generate(unsigned int n);
+    double len(unsigned int n);
   private:
     void db(unsigned int t, unsigned int p);
     

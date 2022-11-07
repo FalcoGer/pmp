@@ -35,6 +35,11 @@ int main(int argc, char** argv)
         return -1;
     }
     
+    double resultLen = sequence->len(len);
+    if (resultLen > 1e+9)
+    {
+        std::cerr << "Resulting string is " << resultLen << " Bytes long. This may break." << std::endl;
+    }
     std::cout << sequence->generate(len) << std::endl;
     
     delete sequence;
