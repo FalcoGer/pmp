@@ -12,8 +12,10 @@ class DeBruijn
     DeBruijn(std::vector<uint8_t> alphabet);
     DeBruijn(std::string_view alphabet);
     ~DeBruijn() = default;
-    std::string generate(unsigned int n);
     double len(unsigned int n);
+
+    std::string returnSequence(unsigned int n);
+    void printSequence(unsigned int n);
   private:
     void db(unsigned int t, unsigned int p);
     
@@ -29,4 +31,11 @@ class DeBruijn
     
     // the length of the requested string to be included
     unsigned int n;
+
+    void generate(unsigned int n);
+    
+    void (DeBruijn::*cb)(unsigned int);
+
+    void cb_print(unsigned int idx);
+    void cb_add2seq(unsigned int idx);
 };

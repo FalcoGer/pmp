@@ -40,8 +40,9 @@ int main(int argc, char** argv)
     {
         std::cerr << "Resulting string is " << resultLen << " Bytes long. This may break." << std::endl;
     }
-    std::cout << sequence->generate(len) << std::endl;
-    
+    // std::cout << sequence->returnSequence(len) << std::endl;
+    sequence->printSequence(len);
+
     delete sequence;
     sequence = nullptr;
 

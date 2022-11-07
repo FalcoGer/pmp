@@ -2,6 +2,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 /// Initialize DeBruijn sequence with hex digits as alphabet
 DeBruijn::DeBruijn()
@@ -50,10 +51,33 @@ double DeBruijn::len(unsigned int n)
   return std::pow(k, n);
 }
 
+std::string DeBruijn::returnSequence(unsigned int n)
+{
+  this->cb = &DeBruijn::cb_add2seq;
+
+  this->generate(n);
+
+  // turn sequence into string
+  std::stringstream ss;
+  for (auto idx : sequence)
+  {
+    ss << alphabet[idx];
+  }
+  
+  return ss.str();
+}
+void DeBruijn::printSequence(unsigned int n)
+{
+  this->cb = &DeBruijn::cb_print;
+  this->generate(n);
+  return;
+}
+
+
 /// Generate De Bruijn sequence. Ref: https://en.wikipedia.org/wiki/De_Bruijn_sequence#Example_using_de_Bruijn_graph
 /// \param n Length of the sequence
 /// \return The sequence.
-std::string DeBruijn::generate(unsigned int n)
+void DeBruijn::generate(unsigned int n)
 {
   this->n = n;
   this->sequence.clear();
@@ -66,15 +90,7 @@ std::string DeBruijn::generate(unsigned int n)
   // FIXME: un-recurse!
   // generate sequence using a recursive function (bleh!)
   db(1u,1u);
-  
-  // turn sequence into string
-  std::stringstream ss;
-  for (auto idx : sequence)
-  {
-    ss << alphabet[idx];
-  }
-  
-  return ss.str();
+  return;
 }
 
 void DeBruijn::db(unsigned int t, unsigned int p)
@@ -86,7 +102,8 @@ void DeBruijn::db(unsigned int t, unsigned int p)
       // sequence.extend(a[1 : p + 1])
       for (size_t idx = 1; idx <= p; idx++)
       {
-        this->sequence.push_back(a[idx]);
+        std::invoke(cb, *this, idx);
+        // this->sequence.push_back(a[idx]);
       }
     }
   }
@@ -101,4 +118,14 @@ void DeBruijn::db(unsigned int t, unsigned int p)
       db(t + 1, t);
     }
   }
+}
+
+void DeBruijn::cb_print(unsigned int idx)
+{
+    std::cout << alphabet[a[idx]];
+}
+
+void DeBruijn::cb_add2seq(unsigned int idx)
+{
+    sequence.push_back(a[idx]);
 }
