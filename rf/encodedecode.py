@@ -55,6 +55,7 @@ def came(data: str, direction: str, repeat: int, syncbit: bool) -> str:
             for c in data:
                 result += '011' if c == '0' else '001'
             result += pause
+        result = result.rstrip('0')
     return result
 
 # format starts with 11, then 00X11 where Xx is the bit to be transmitted twice, but inverted.
@@ -94,6 +95,7 @@ def nice(data: str, direction: str, repeat: int, syncbit: bool) -> str:
             for c in data:
                 result += '001111' if c == '0' else '000011'
             result += pause
+        result = result.rstrip('0')
     return result
 
 def parse_args():
