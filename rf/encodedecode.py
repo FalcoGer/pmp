@@ -21,6 +21,8 @@ def main():
         result = nice(args.data, args.direction, args.repeat, args.wakeupbit)
     elif args.proto == 'chamberlain':
         result = chamberlain(args.data, args.direction, args.repeat, args.wakeupbit)
+    elif args.proto == 'linear':
+        result = linear(args.data, args.direction, args.repeat, args.wakeupbit)
     else:
         result = f'Protocol {args.proto} not implemented.'
     
@@ -186,10 +188,38 @@ def nice(data: str, direction: str, repeat: int, wakeupbit: bool) -> str:
         result = result.rstrip('0')
     return result
 
+# dumb format. 1000 for 0, 1110 for 1. (2000 Samples/symbol @ 2M Samples/s)
+def linear(data: str, direction: str, repeat: int, wakeupbit: bool) -> str:
+    result = ''
+    if direction == 'decode':
+        # pad right with 0 to make it divisible by 4
+        if len(data) % 4 != 0:
+            data = data + ("0" * (4 - (len(data) % 4)))
+
+        for idx in range(0, int(len(data) / 4)):
+            block = data[idx*4:idx*4+4]
+            if block == '1000':
+                result += '0'
+            elif block == '1110':
+                result += '1'
+            else:
+                print(f"Bad Format, block at {idx} expected '1000' or '1110', but got '{block}'.")
+                return result
+    elif direction == 'encode':
+        result = ''
+        pause = '0'*40
+
+        for _ in range(0, repeat):
+            for c in data:
+                result += '1000' if c == '0' else '1110'
+            result += pause
+        result = result.rstrip('0')
+    return result
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Decode and encode radio protocols for URH')
 
-    parser.add_argument('--proto', dest='proto', help='Protocol to decode or encode', choices=['came', 'nice', 'chamberlain'], required=True)
+    parser.add_argument('--proto', dest='proto', help='Protocol to decode or encode', choices=['came', 'nice', 'chamberlain', 'linear'], required=True)
     parser.add_argument('--dir', dest='direction', help='Decode or Encode', choices=['encode', 'decode'], required=True)
     parser.add_argument('--wakeupbit', dest='wakeupbit', help='On encoding, send wakeup bit up front', choices=['yes', 'no'], default='no', required=False)
     parser.add_argument('--repeat', dest='repeat', help='How often to repeat', type=int, default=1, required=False)
