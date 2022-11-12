@@ -69,7 +69,8 @@ def came(data: str, direction: str, repeat: int, wakeupbit: bool) -> str:
 # 8bit:   S D7 D6 D5 D4 D3 D2  S D1 D0  S
 # 7bit:   S D6 D5 D4 D3 D2 D1  S  S D0  S
 # idx        0  1  2  3  4  5  6  7  8  9
-
+# current flipper zero implementation probably wrong
+# See: https://github.com/flipperdevices/flipperzero-firmware/issues/2006
 def chamberlain(data: str, direction: str, repeat: int, wakeupbit: bool) -> str:
     result = ''
     if direction == 'decode':
