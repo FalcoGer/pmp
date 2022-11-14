@@ -65,13 +65,14 @@ def came(data: str, direction: str, repeat: int, wakeupbit: bool) -> str:
         result = result.rstrip('0')
     return result
 
-# format starts with 1, then 0X11 where X is the bit to be transmitted, but inverted. End of data is 0001. (2000 samples / symbol @ 2M samples/s)
+# format starts with 1, then 0X11 where X is the bit to be transmitted, but inverted. Special marker is 0001. (2000 samples / symbol @ 2M samples/s)
 # if less than 9 bits are transmitted, then the signal is encoded as such
 # 9bit:   S D8 D7 D6 D5 D4 D3 D2 D1 D0  S
-# 8bit:   S D7 D6 D5 D4 D3 D2  S D1 D0  S
+# 8bit:   S D7 D6 D5 D4 D3  S D1 D0  S
 # 7bit:   S D6 D5 D4 D3 D2 D1  S  S D0  S
 # idx        0  1  2  3  4  5  6  7  8  9
-# current flipper zero implementation probably wrong
+# 
+# Bit 3 (D2) is dropped for 8 bit codes
 # See: https://github.com/flipperdevices/flipperzero-firmware/issues/2006
 def chamberlain(data: str, direction: str, repeat: int, wakeupbit: bool) -> str:
     result = ''
@@ -87,9 +88,10 @@ def chamberlain(data: str, direction: str, repeat: int, wakeupbit: bool) -> str:
             print(f'Bad Format, data length needs to be divisible by 4, but it\'s {len(data)}.')
             return result
         
-        reduced = False
 
         # loop over data in blocks of 4
+        eightBit = False
+        sevenBit = False
         for idx in range(0, int(len(data) / 4)):
             if endbit:
                 print("Bad Format, endbit already received, but additional data is present.")
@@ -99,19 +101,34 @@ def chamberlain(data: str, direction: str, repeat: int, wakeupbit: bool) -> str:
             elif block == 7:
                 result += '0'
             elif block == 1:
-                if (idx == 6):
-                    reduced = True
+                if (idx == 5):
+                    eightBit = True
+                    result += '0' # 3rd bit is dropped, but still considered 8 bit code for some reason
+                elif (idx == 6):
+                    if eightBit:
+                        print("Bad Format, found special marker at index 5 (8Bit), can't have special marker at index 6(7Bit).")
+                        return result
+                    sevenBit = True
                 elif (idx == 7):
-                    if not reduced:
+                    if not sevenBit:
                         print("Bad Format, symbol at bit 7 indicates a 7 bit code, but index 6 wasn't set to 0001.")
+                        return result
             else:
                 print(f"Bad Format, data block invalid at index {idx*4}. Expected '0011', '0111' or '0001', but found {data[idx*4:idx*4+4]}.")
                 return result
-            if idx == 9:
+            if idx == 8 and eightBit:
                 if not block == 1:
+                    print("Bad Format, 8 Bit codes must end with marker symbol at index 8.")
+                    return result
+            if idx == 9:
+                if not block == 1 and not eightBit:
                     print("Bad Format, symbol at index 9 must be 0001.")
+                    return result
+                elif eightBit:
+                    print("Bad Format, max synbols for 8 bits is 10.")
+                    return result
             elif idx == 10:
-                print("Bad Format, max symbols is 10.")
+                print("Bad Format, max symbols is 11.")
     elif direction == 'encode':
         result = ''
         pause = '0'*39 # 39ms
@@ -127,12 +144,12 @@ def chamberlain(data: str, direction: str, repeat: int, wakeupbit: bool) -> str:
             result += '1' # start bit
             idx = 0
             for c in data:
-                ## this is what flipper zero accepts as 8 bit chamberlain
-                ## is this right??! Dropping bit 3
-                #if idx == 5 and len(data) == 8:
-                #    idx += 1
-                #    result += '0001'
-                #    continue
+                # this is what flipper zero accepts as 8 bit chamberlain
+                # dropping 3rd bit
+                if idx == 5 and len(data) == 8:
+                    idx += 1
+                    result += '0001'
+                    continue
                 
                 # append data
                 result += '0111' if c == '0' else '0011'
