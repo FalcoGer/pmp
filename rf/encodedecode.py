@@ -88,19 +88,21 @@ def chamberlain(data: str, direction: str, repeat: int, wakeupbit: bool) -> str:
             print(f'Bad Format, data length needs to be divisible by 4, but it\'s {len(data)}.')
             return result
         
-
         # loop over data in blocks of 4
         eightBit = False
         sevenBit = False
+        
+        one = '0011'
+        zero = '0111'
+        mark = '0001'
+
         for idx in range(0, int(len(data) / 4)):
-            if endbit:
-                print("Bad Format, endbit already received, but additional data is present.")
-            block = int(data[idx*4:idx*4+4], 2)
-            if block == 3:
+            block = data[idx*4:idx*4+4]
+            if block == one:
                 result += '1'
-            elif block == 7:
+            elif block == zero:
                 result += '0'
-            elif block == 1:
+            elif block == mark:
                 if (idx == 5):
                     eightBit = True
                     result += '0' # 3rd bit is dropped, but still considered 8 bit code for some reason
