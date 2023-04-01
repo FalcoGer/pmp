@@ -1,4 +1,4 @@
-#CAME
+# CAME
 
 Freq 433.98MHz, 307MHz, 303MHz
 Carrier: 5.5kHz
@@ -6,7 +6,7 @@ Symbol length: 690 Samples @ 2MS/s (1ms)
 Modulation: ASK 1bit/symbol, 0/100
 Key length: 12bit
 
-#NICE
+# NICE
 
 Freq 433.98MHz, 868MHz
 Carrier: 5.5kHz
