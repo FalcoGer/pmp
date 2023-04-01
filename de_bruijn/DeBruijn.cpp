@@ -24,6 +24,7 @@ DeBruijn::DeBruijn(std::vector<uint8_t> alphabet)
 {
   for (uint8_t c : alphabet)
   {
+    // exclude duplicates
     if (std::find(this->alphabet.begin(), this->alphabet.end(), c) == this->alphabet.end())
     {
       this->alphabet.push_back(c);
@@ -38,6 +39,7 @@ DeBruijn::DeBruijn(std::string_view alphabet)
 {
   for (char c : alphabet)
   {
+    // exclude duplicates
     if (std::find(this->alphabet.begin(), this->alphabet.end(), c) == this->alphabet.end())
     {
       this->alphabet.push_back(static_cast<uint8_t>(c));
@@ -66,6 +68,7 @@ std::string DeBruijn::returnSequence(unsigned int n)
   
   return ss.str();
 }
+
 void DeBruijn::printSequence(unsigned int n)
 {
   this->cb = &DeBruijn::cb_print;
