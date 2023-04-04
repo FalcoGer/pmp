@@ -1,0 +1,3 @@
+[submodule "proxy"]
+	path = proxy
+	url = git@github.com:FalcoGer/proxy.git
